@@ -1,12 +1,12 @@
 package hiber.dao;
 
-import hiber.model.Car;
 import hiber.model.User;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.TypedQuery;
+import javax.transaction.Transactional;
 import java.util.List;
 
 @Repository
@@ -23,16 +23,18 @@ public class UserDaoImp implements UserDao {
     @Override
     @SuppressWarnings("unchecked")
     public List<User> listUsers() {
-        TypedQuery<User> query = sessionFactory.getCurrentSession().createQuery("from User");
+        String hql = "SELECT DISTINCT user FROM User user LEFT JOIN FETCH user.car";
+        TypedQuery<User> query = sessionFactory.getCurrentSession().createQuery(hql, User.class);
         return query.getResultList();
     }
 
     @Override
-    @SuppressWarnings("unchecked")
+    @Transactional
     public User getUserByCar(String model, int series) {
-        String hql = "from User user where user.car.model = :model and user.car.series = :series";
-        TypedQuery<User> query = sessionFactory.getCurrentSession().createQuery(hql);
-        query.setParameter("model", model).setParameter("series", series);
+        String hql = "SELECT DISTINCT user FROM User user LEFT JOIN FETCH user.car car WHERE car.model = :model AND car.series = :series";
+        TypedQuery<User> query = sessionFactory.getCurrentSession().createQuery(hql, User.class);
+        query.setParameter("model", model);
+        query.setParameter("series", series);
         return query.setMaxResults(1).getSingleResult();
     }
 }

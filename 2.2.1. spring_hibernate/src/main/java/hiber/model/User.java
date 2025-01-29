@@ -1,6 +1,8 @@
 package hiber.model;
 
 import javax.persistence.*;
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
 
 @Entity
 @Table(name = "users")
@@ -19,8 +21,9 @@ public class User {
     @Column(name = "email")
     private String email;
 
-    @OneToOne
-    @MapsId
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_car_id", referencedColumnName = "id")
+    @Cascade(CascadeType.ALL)
     private Car car;
 
     public User() {}
